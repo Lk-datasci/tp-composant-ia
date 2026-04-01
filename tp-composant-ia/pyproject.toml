@@ -1,0 +1,97 @@
+[project]
+name = "tp-composant-ia"
+version = "0.1.0"
+description = "A workspace for AI components"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pre-commit>=4.5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/loic/tp-composant-ia"
+Documentation = "https://loic.github.io/tp-composant-ia"
+Repository = "https://github.com/loic/tp-composant-ia"
+
+[build-system]
+requires = ["uv_build>=0.8.0,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv]
+default-groups = ["nox", "lint", "type_check", "docs", "test"]
+
+[dependency-groups]
+nox = [
+    "nox-uv",
+]
+
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-randomly",
+    "pytest-html",
+    "pytest-sugar",
+    "pytest-timeout",
+]
+
+type_check = [
+    "mypy",
+    "types-PyYAML",
+]
+
+lint = [
+    "ruff",
+]
+
+docs = [
+    "mkdocs-material",
+    "mkdocs-htmlproofer-plugin",
+    "mkdocstrings[python]",
+    "mkdocs-api-autonav",
+    "mkdocs-jupyter",
+    "mkdocs-simple-hooks",
+]
+
+licenses = [
+    "pip-licenses-cli",
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+strict = true
+enable_error_code = ["deprecated", "exhaustive-match", "explicit-override"]
+
+[tool.ruff]
+line-length = 120
+src = ["src", "packages/*/src"]
+
+[tool.ruff.lint]
+select = [
+    "F", "E", "I", "N", "UP", "RUF", "B", "C4", "ISC", "PIE", "PT", "PTH", "SIM", "TID",
+]
+extend-ignore = [
+    "RUF005", "RUF100", "RUF012", "I001"
+]
+unfixable = [
+    "F401",
+]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+split-on-trailing-comma = false
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--html=docs/reports/pytest/pytest_report.html",
+    "--force-sugar",
+    "--timeout=300",
+    "-vv",
+]

@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.nox/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+site/
+docs/index.md
+uv.lock
