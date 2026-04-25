@@ -1,0 +1,100 @@
+# Set strict to true to turn warnings into errors to catch warnings within CI.
+strict: false
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+theme:
+  name: material
+  font: false
+  palette: 
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    logo: material/math-integral-box
+    repo: fontawesome/brands/github
+  favicon: static/math-integral-box.png
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - content.tooltips
+    - navigation.indexes
+    - navigation.footer
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    - toc.integrate
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.path
+    - navigation.prune
+markdown_extensions:
+  - abbr
+  - admonition
+  - footnotes
+  - pymdownx.details
+  - pymdownx.keys
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - md_in_html
+extra_css:
+  - static/stylesheets/extra.css
+extra_javascript:
+  - https://unpkg.com/mermaid/dist/mermaid.min.js
+  - javascripts/mermaid.js
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/loic/tp-composant-ia
+plugins:
+  - mkdocs-simple-hooks:
+      hooks:
+        on_pre_build: "scripts.docs_hooks:pre_build"
+  - mkdocs-jupyter:
+      theme: dark
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_if_no_docstring: true
+            show_signature_annotations: true
+  - htmlproofer:
+      validate_external_urls: false
+      raise_error: false
+watch:
+  - "packages"
+  - "docs"
+site_name: TP Composant IA
+copyright: Copyright &copy; loic
+repo_name: tp-composant-ia
+repo_url: https://github.com/loic/tp-composant-ia
+edit_uri: edit/main/docs/
+nav:
+  - Home: index.md
+  - Architecture: architecture/index.md
+  - Datasets: datasets/index.md
+  - KPI: kpi/index.md
+  - Artefacts: artefacts/index.md
+  - User Guide: user_guide.md
+  - API Reference: api_reference.md
+  - Contributing: contributing.md
