@@ -1,0 +1,99 @@
+graph LR
+    subgraph ACQ["📷 ACQUISITION"]
+        IMG["Raw RGB Image
+        (variable resolution)"]
+        CTX["Context
+        (timestamp, seam type,
+        camera ID, criticality)"]
+    end
+
+    subgraph PREP["🔧 PREPROCESSOR"]
+        CLEAN["→ Resize
+        → Normalize
+        → Color convert
+        → Exposure correct"]
+        QC{"Quality
+        Check"}
+    end
+
+    subgraph AI["🧠 AI COMPONENT"]
+        BB["Backbone CNN
+        (light enough so
+        < 1/12s inference)"]
+        LS["LATENT
+        SPACE"]
+        PR["Predictor P(OK) / P(NOK) /
+        P(Unknown)"]
+        UQ["Uncertainty
+        Quantifier
+        (entropy/PUNNC/ensemble de modèles?)"]
+        OOD["OOD
+        Detector"]
+    end
+
+    subgraph MA["📊 METRICS ASSEMBLY"]
+        CRIT["Criticality
+        Adjustment"]
+        DEC{"Decision
+        Rules"}
+        FO["✅ Final Class
+        OK / NOK / Unknown"]
+        AO["📋 Trust Info
+        confidence, OOD score..."]
+    end
+
+    subgraph OP["🖥️ OPERATOR"]
+        DISP["OP 120
+        Display"]
+        FB["Operator
+        Feedback"]
+    end
+
+    subgraph MON["📈 MONITORING"]
+        TRACK["Online
+        Monitoring"]
+        DB[("Storage")]
+        BATCH["Batch
+        Control"]
+    end
+
+    IMG --> CLEAN --> QC
+    QC -->|"✅ OK"| BB
+    QC -->|"❌ Unusable"| DEC
+    BB --> LS
+    LS --> PR
+    LS --> UQ
+    LS --> OOD
+    PR --> DEC
+    UQ --> DEC
+    OOD --> DEC
+    CTX --> CRIT --> DEC
+    DEC --> FO
+    DEC --> AO
+    FO --> DISP
+    AO --> DISP
+    DISP --> FB
+    FO --> TRACK
+    AO --> TRACK
+    TRACK --> DB
+    DB --> BATCH
+    FB --> DB
+
+    style IMG fill:#4A90D9,stroke:#2C5F8A,color:#fff
+    style CTX fill:#4A90D9,stroke:#2C5F8A,color:#fff
+    style CLEAN fill:#5DADE2,stroke:#2E86C1,color:#fff
+    style QC fill:#F39C12,stroke:#D68910,color:#fff
+    style BB fill:#2ECC71,stroke:#27AE60,color:#fff
+    style LS fill:#A3E4D7,stroke:#1ABC9C,color:#333
+    style PR fill:#2ECC71,stroke:#27AE60,color:#fff
+    style UQ fill:#E74C3C,stroke:#C0392B,color:#fff
+    style OOD fill:#E74C3C,stroke:#C0392B,color:#fff
+    style CRIT fill:#F5B041,stroke:#D68910,color:#333
+    style DEC fill:#F5B041,stroke:#D68910,color:#333
+    style FO fill:#28B463,stroke:#1E8449,color:#fff
+    style AO fill:#85C1E9,stroke:#2E86C1,color:#333
+    style DISP fill:#8E44AD,stroke:#6C3483,color:#fff
+    style FB fill:#8E44AD,stroke:#6C3483,color:#fff
+    style TRACK fill:#5D6D7E,stroke:#2C3E50,color:#fff
+    style DB fill:#5D6D7E,stroke:#2C3E50,color:#fff
+    style BATCH fill:#5D6D7E,stroke:#2C3E50,color:#fff

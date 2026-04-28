@@ -17,6 +17,9 @@ The operation phase describes how the component behaves when deployed in product
 - **Raw image**: weld image (RGB, variable resolution) captured by the OP 120 station camera
 - **Context (metadata)**: timestamp, weld seam type (C20 / C33 / C102), station/camera ID, weld criticality level
 
+Note point jeudi :
+Video + sensor data
+
 ### Processing Pipeline
 
 1. **Preprocessor**: prepares the image for the model and performs an initial quality check
@@ -53,88 +56,103 @@ The operation phase describes how the component behaves when deployed in product
 
 ```mermaid
 graph LR
-    subgraph Acquisition
-        IMG[📷 Raw RGB Image<br/>Variable resolution]
-        CTX[📋 Context<br/>timestamp, seam type C20/C33/C102,<br/>camera ID, weld criticality]
+    subgraph ACQ["📷 ACQUISITION"]
+        IMG["Raw RGB Image
+        (variable resolution)"]
+        CTX["Context
+        (timestamp, seam type,
+        camera ID, criticality)"]
     end
 
-    subgraph Preprocessor
-        RESIZE[Resize to fixed size]
-        NORM[Pixel normalization<br/>scale to 0-1]
-        COLOR[RGB → Grayscale<br/>choice to justify experimentally]
-        EXPO[Exposure correction<br/>stabilize lighting variations]
-        QC{Image Quality Check<br/>blur & brightness thresholds}
+    subgraph PREP["🔧 PREPROCESSOR"]
+        CLEAN["→ Resize
+        → Normalize
+        → Color convert
+        → Exposure correct"]
+        QC{"Quality
+        Check"}
     end
 
-    subgraph "AI Component"
-        BACKBONE[🧠 Backbone CNN<br/>lightweight, inference < 1/12s<br/>from scratch or fine-tuned TBD]
-        LS[Latent Space<br/>compressed feature vector]
-        PRED[Predictor<br/>P OK / P NOK / P Unknown]
-        UQ[Uncertainty Quantifier<br/>entropy on probabilities<br/>MC Dropout / Conformal TBD]
-        OOD[OOD Detector<br/>Mahalanobis distance<br/>in latent space]
+    subgraph AI["🧠 AI COMPONENT"]
+        BB["Backbone CNN
+        (light enough so
+        < 1/12s inference)"]
+        LS["LATENT
+        SPACE"]
+        PR["Predictor P(OK) / P(NOK) /
+        P(Unknown)"]
+        UQ["Uncertainty
+        Quantifier
+        (entropy/PUNNC/ensemble de modèles?)"]
+        OOD["OOD
+        Detector"]
     end
 
-    subgraph "Metrics Assembly"
-        CRIT[Criticality adjustment<br/>stricter thresholds on critical welds]
-        RULES{Decision Rules<br/>OOD detected → Unknown<br/>Uncertainty > threshold → Unknown<br/>Unusable image → Unknown + alert<br/>Otherwise → predicted class}
-        FO[✅ Functional Output<br/>Final class: OK / NOK / Unknown]
-        AO[📊 Auxiliary Outputs<br/>confidence score, OOD score,<br/>decision rationale]
+    subgraph MA["📊 METRICS ASSEMBLY"]
+        CRIT["Criticality
+        Adjustment"]
+        DEC{"Decision
+        Rules"}
+        FO["✅ Final Class
+        OK / NOK / Unknown"]
+        AO["📋 Trust Info
+        confidence, OOD score..."]
     end
 
-    subgraph "Operator Interaction"
-        SCREEN[🖥️ OP 120 Display<br/>class + confidence + rationale]
-        FB[🔄 Operator Feedback<br/>confirm or correct prediction<br/>→ stored for retraining]
+    subgraph OP["🖥️ OPERATOR"]
+        DISP["OP 120
+        Display"]
+        FB["Operator
+        Feedback"]
     end
 
-    subgraph Monitoring
-        MON[Online Monitoring<br/>track predictions & indicators<br/>detect sudden Unknown spikes]
-        STORAGE[(Storage<br/>predictions, scores,<br/>feedback, images)]
-        BATCH[Batch Control<br/>systemic issue detection<br/>per seam type analysis]
+    subgraph MON["📈 MONITORING"]
+        TRACK["Online
+        Monitoring"]
+        DB[("Storage")]
+        BATCH["Batch
+        Control"]
     end
 
-    IMG --> RESIZE --> NORM --> COLOR --> EXPO --> QC
-    QC -->|✅ image OK| BACKBONE
-    QC -->|❌ unusable image| RULES
-    BACKBONE --> LS
-    LS --> PRED
+    IMG --> CLEAN --> QC
+    QC -->|"✅ OK"| BB
+    QC -->|"❌ Unusable"| DEC
+    BB --> LS
+    LS --> PR
     LS --> UQ
     LS --> OOD
-    PRED --> RULES
-    UQ --> RULES
-    OOD --> RULES
-    CTX --> CRIT
-    CRIT --> RULES
-    RULES --> FO
-    RULES --> AO
-    FO --> SCREEN
-    AO --> SCREEN
-    SCREEN --> FB
-    FO --> MON
-    AO --> MON
-    MON --> STORAGE
-    STORAGE --> BATCH
-    FB --> STORAGE
+    PR --> DEC
+    UQ --> DEC
+    OOD --> DEC
+    CTX --> CRIT --> DEC
+    DEC --> FO
+    DEC --> AO
+    FO --> DISP
+    AO --> DISP
+    DISP --> FB
+    FO --> TRACK
+    AO --> TRACK
+    TRACK --> DB
+    DB --> BATCH
+    FB --> DB
 
     style IMG fill:#4A90D9,stroke:#2C5F8A,color:#fff
     style CTX fill:#4A90D9,stroke:#2C5F8A,color:#fff
-    style RESIZE fill:#5DADE2,stroke:#2E86C1,color:#fff
-    style NORM fill:#5DADE2,stroke:#2E86C1,color:#fff
-    style COLOR fill:#5DADE2,stroke:#2E86C1,color:#fff
-    style EXPO fill:#5DADE2,stroke:#2E86C1,color:#fff
+    style CLEAN fill:#5DADE2,stroke:#2E86C1,color:#fff
     style QC fill:#F39C12,stroke:#D68910,color:#fff
-    style BACKBONE fill:#2ECC71,stroke:#27AE60,color:#fff
+    style BB fill:#2ECC71,stroke:#27AE60,color:#fff
     style LS fill:#A3E4D7,stroke:#1ABC9C,color:#333
-    style PRED fill:#2ECC71,stroke:#27AE60,color:#fff
+    style PR fill:#2ECC71,stroke:#27AE60,color:#fff
     style UQ fill:#E74C3C,stroke:#C0392B,color:#fff
     style OOD fill:#E74C3C,stroke:#C0392B,color:#fff
     style CRIT fill:#F5B041,stroke:#D68910,color:#333
-    style RULES fill:#F5B041,stroke:#D68910,color:#333
+    style DEC fill:#F5B041,stroke:#D68910,color:#333
     style FO fill:#28B463,stroke:#1E8449,color:#fff
     style AO fill:#85C1E9,stroke:#2E86C1,color:#333
-    style SCREEN fill:#8E44AD,stroke:#6C3483,color:#fff
+    style DISP fill:#8E44AD,stroke:#6C3483,color:#fff
     style FB fill:#8E44AD,stroke:#6C3483,color:#fff
-    style MON fill:#5D6D7E,stroke:#2C3E50,color:#fff
-    style STORAGE fill:#5D6D7E,stroke:#2C3E50,color:#fff
+    style TRACK fill:#5D6D7E,stroke:#2C3E50,color:#fff
+    style DB fill:#5D6D7E,stroke:#2C3E50,color:#fff
     style BATCH fill:#5D6D7E,stroke:#2C3E50,color:#fff
 ```
 
