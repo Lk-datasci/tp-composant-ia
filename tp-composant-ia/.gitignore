@@ -10,3 +10,5 @@ site/
 docs/index.md
 uv.lock
 **/.DS_Store
+*.svg
+*.png
