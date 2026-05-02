@@ -542,22 +542,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-dataset-constitution-methods" class="md-nav__link">
+  <a href="#1-data-split-strategy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Dataset Constitution Methods
+        1. Data Split Strategy
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Dataset Constitution Methods">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-core-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Core Datasets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Core Datasets">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#data-augmentation-for-welding-defects" class="md-nav__link">
+  <a href="#21-training-dataset" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Augmentation for Welding Defects
+        2.1 Training Dataset
       
     </span>
   </a>
@@ -565,10 +576,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#filtering-and-selection" class="md-nav__link">
+  <a href="#22-validation-dataset" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Filtering and Selection
+        2.2 Validation Dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-calibration-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Calibration Dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-standard-evaluation-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Standard Evaluation Dataset
       
     </span>
   </a>
@@ -581,10 +614,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-metadata-identification" class="md-nav__link">
+  <a href="#3-specialized-evaluation-datasets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Metadata Identification
+        3. Specialized Evaluation Datasets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Specialized Evaluation Datasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-robustness-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Robustness Dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-ood-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 OOD Dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-generalization-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Generalization Dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-data-drift-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Data Drift Dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-dataset-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Dataset Metadata
       
     </span>
   </a>
@@ -592,10 +686,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-usage-description" class="md-nav__link">
+  <a href="#5-dataset-constitution-methods" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Usage Description
+        5. Dataset Constitution Methods
       
     </span>
   </a>
@@ -603,10 +697,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-dataset-interface-python" class="md-nav__link">
+  <a href="#6-dataset-mapping-to-lifecycle-phases" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Dataset Interface (Python)
+        6. Dataset Mapping to Lifecycle Phases
       
     </span>
   </a>
@@ -785,62 +879,299 @@
 
 
 <h1 id="datasets-definition">Datasets Definition</h1>
-<p><em>partial automatic generator for structural exemple, please do not take as good proposal, make you own or even comment identified errors, once TP performed, remove this sentence.</em></p>
-<p>This document describes the datasets used for training, validating, and testing the welding quality detection component.</p>
-<h2 id="1-dataset-constitution-methods">1. Dataset Constitution Methods</h2>
-<h3 id="data-augmentation-for-welding-defects">Data Augmentation for Welding Defects</h3>
-<p>To improve model robustness, the following augmentations are planned:</p>
-<ul>
-<li><strong>Visual Effects</strong>: Simulated camera flash (overexposure), motion blur, and sensor noise.</li>
-<li><strong>Geometric</strong>: Random cropping of weld seams, rotations, and perspective shifts.</li>
-<li><strong>Contextual</strong>: Inserting synthetic defects (e.g., porosity) into "clean" weld images.</li>
-</ul>
-<h3 id="filtering-and-selection">Filtering and Selection</h3>
-<ul>
-<li><strong>Negative Mining</strong>: Selecting samples where no water is present near the weld (specific use case).</li>
-<li><strong>Metadata-based Filtering</strong>: Extracting samples by material type (e.g., Aluminum vs Steel).</li>
-</ul>
-<h2 id="2-metadata-identification">2. Metadata Identification</h2>
-<p>Each sample in the dataset is associated with the following metadata:
-- <code>weld_id</code>: Unique identifier for the weld seam.
-- <code>material</code>: Type of material being welded.
-- <code>defect_type</code>: Ground truth label (NONE, POROSITY, SPLASH).
-- <code>flash_intensity</code>: Localisation and intensity of simulated camera flash.
-- <code>sensor_sync_offset</code>: Time offset between video and sensor logs.</p>
-<h2 id="3-usage-description">3. Usage Description</h2>
+<p>This document describes the datasets used for training, validating, calibrating, and evaluating the welding quality detection AI component. Each dataset is defined by its constitution method, volume, augmentation strategy, and intended usage within the component lifecycle.</p>
+<h2 id="1-data-split-strategy">1. Data Split Strategy</h2>
+<p>The full Renault welding dataset (22,753 images, 3 seam types: C20/C33/C102, 98% OK / 2% KO) is divided using <strong>stratified splitting</strong>, preserving the distribution of seam types (22% C20 / 39% C33 / 39% C102) and the OK/KO ratio within each subset.</p>
+<p>Stratified splitting ensures that each subset contains a representative proportion of all classes and seam types. Without stratification, random sampling could produce subsets with missing or under-represented categories, compromising training or evaluation quality.</p>
+<p>The split is performed on the combination (seam_type, label) to guarantee that each subset contains KO samples for every seam type.</p>
 <table>
 <thead>
 <tr>
-<th>Dataset</th>
+<th>Subset</th>
+<th>Volume</th>
 <th>Purpose</th>
-<th>Sample Count (Planned)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>train_base</code></td>
-<td>Initial model training</td>
-<td>5000</td>
+<td>Training</td>
+<td>~60% (~13,650 images)</td>
+<td>Model learning</td>
 </tr>
 <tr>
-<td><code>train_augmented</code></td>
-<td>Robustness training (with flash/noise)</td>
-<td>10000</td>
+<td>Validation</td>
+<td>~10% (~2,275 images)</td>
+<td>Hyperparameter tuning + early stopping</td>
 </tr>
 <tr>
-<td><code>val_standard</code></td>
-<td>Hyperparameter tuning</td>
-<td>1000</td>
+<td>Calibration</td>
+<td>~10% (~2,275 images)</td>
+<td>UQ/OOD threshold calibration</td>
 </tr>
 <tr>
-<td><code>test_edge_cases</code></td>
-<td>Final validation on flash/occlusion cases</td>
-<td>500</td>
+<td>Evaluation</td>
+<td>~20% (~4,550 images)</td>
+<td>Final assessment before deployment</td>
 </tr>
 </tbody>
 </table>
-<h2 id="4-dataset-interface-python">4. Dataset Interface (Python)</h2>
-<p>The following code defines how datasets are accessed and manipulated.</p>
+<h2 id="2-core-datasets">2. Core Datasets</h2>
+<h3 id="21-training-dataset">2.1 Training Dataset</h3>
+<ul>
+<li><strong>Method</strong>: stratified split from the Renault dataset, preserving seam type and OK/KO distribution. KO class rebalancing through targeted data augmentation to compensate the 98/2 imbalance.</li>
+<li><strong>Volume</strong>: ~60% of the data (~13,650 images before augmentation)</li>
+<li><strong>Data augmentation</strong>: transformations applied randomly on-the-fly during training (each image may be presented clean or with one or more transformations drawn at random, with a probability of 0.3-0.5 per transformation type):</li>
+<li>Geometric: rotation ±10°, translation ~20px (within ODD limits)</li>
+<li>Colorimetric: brightness and contrast variations</li>
+<li>Noise: light Gaussian blur, simulated sensor noise</li>
+<li><strong>KO rebalancing</strong>: oversampling of KO images (duplicate + augmented variants) to reach a less extreme ratio (target to be defined experimentally, e.g. 80/20 or 70/30 rather than 50/50 to stay closer to operational reality)</li>
+<li><strong>Usage</strong>: joint training of backbone CNNs (one per seam type) and predictor. Exposure to ODD-compliant variations for robustness.</li>
+</ul>
+<h3 id="22-validation-dataset">2.2 Validation Dataset</h3>
+<ul>
+<li><strong>Method</strong>: stratified split, same distribution as training set, data fully disjoint from training.</li>
+<li><strong>Volume</strong>: ~10% of the data (~2,275 images)</li>
+<li><strong>Augmentation</strong>: none — evaluation on clean data for reliable progress tracking during training.</li>
+<li><strong>Usage</strong>: early stopping (halt training when F1 NOK on validation set plateaus for N consecutive epochs), hyperparameter tuning, overfitting monitoring (train/val gap tracking).</li>
+</ul>
+<h3 id="23-calibration-dataset">2.3 Calibration Dataset</h3>
+<ul>
+<li><strong>Method</strong>: stratified split, data never seen during training, distribution close to operational reality (98/2 OK/KO ratio preserved — not rebalanced).</li>
+<li><strong>Volume</strong>: ~10% of the data (~2,275 images)</li>
+<li><strong>Augmentation</strong>: none — calibration on real distribution to ensure representative threshold setting.</li>
+<li><strong>Usage</strong>: post-training calibration of:</li>
+<li>UQ thresholds (at what uncertainty level does the system switch to Unknown?)</li>
+<li>OOD detection boundaries in latent space (what is the "normal" distribution of known data?)</li>
+<li>Monitoring baselines (expected Unknown rate, expected confidence distribution per seam type)</li>
+<li><strong>Important</strong>: the calibration set must preserve the real 98/2 distribution. Using a rebalanced set would produce biased thresholds — the model would be calibrated for a world where defects are common, not for the real production line where they are rare.</li>
+</ul>
+<h3 id="24-standard-evaluation-dataset">2.4 Standard Evaluation Dataset</h3>
+<ul>
+<li><strong>Method</strong>: stratified split, representative sample never seen during training or calibration, fully disjoint from all other subsets.</li>
+<li><strong>Volume</strong>: ~20% of the data (~4,550 images)</li>
+<li><strong>Augmentation</strong>: none.</li>
+<li><strong>Usage</strong>: final assessment before deployment — computation of:</li>
+<li>Performance metrics (F1-score, Recall NOK, Precision NOK, confusion matrix, operational cost matrix, inference latency)</li>
+<li>Uncertainty metrics (ECE, Brier score, Unknown rate)</li>
+<li>Per-CNN performance comparison</li>
+<li>Routing accuracy</li>
+</ul>
+<h2 id="3-specialized-evaluation-datasets">3. Specialized Evaluation Datasets</h2>
+<p>These datasets are generated from a <strong>selected subset of high-quality, representative real images</strong> (typically a few hundred source images from the evaluation set), not from the full dataset.</p>
+<h3 id="31-robustness-dataset">3.1 Robustness Dataset</h3>
+<ul>
+<li><strong>Method</strong>: generated from ~500 source images of good quality selected from the standard evaluation set. Controlled perturbations applied at multiple intensity levels per perturbation type. Each source image produces several perturbed variants.</li>
+<li><strong>Perturbation types</strong>:</li>
+<li>Blur: Gaussian blur at increasing kernel sizes</li>
+<li>Brightness: under-exposure and over-exposure at increasing intensity</li>
+<li>Rotation: ±10° at incremental angles (within ODD limits)</li>
+<li>Translation: shifts up to ~20px in each direction</li>
+<li><strong>Volume</strong>: ~500 source images × 4 perturbation types × 4-5 intensity levels = several thousand perturbed images</li>
+<li><strong>Usage</strong>: robustness evaluation — ΔF1-score per perturbation type, AUC of precision per perturbation level, Unknown switch rate under perturbation. Validates ODD compliance.</li>
+</ul>
+<h3 id="32-ood-dataset">3.2 OOD Dataset</h3>
+<ul>
+<li><strong>Method</strong>: two complementary approaches:</li>
+<li><strong>Real OOD</strong>: selection through a discovery protocol of naturally occurring anomalous images in the existing dataset (extreme blur, occlusions, abnormal lighting, camera artifacts)</li>
+<li><strong>Synthetic OOD</strong>: generated from ~200 good-quality source images by applying strong perturbations beyond ODD limits (artificial coloration, extreme brightness/contrast saturation, heavy blur, simulated camera obstruction)</li>
+<li><strong>Volume</strong>: a few hundred images, mix of real and synthetic OOD</li>
+<li><strong>Usage</strong>: OOD detection evaluation — AUROC OOD, OOD false negative rate (priority: dangerous cases), OOD false positive rate. Tests the OOD detector's ability to flag inputs that should not be classified.</li>
+</ul>
+<h3 id="33-generalization-dataset">3.3 Generalization Dataset</h3>
+<ul>
+<li><strong>Method</strong>: selection of images from unseen weld seam types (C19, C34, C101), chosen based on visual proximity with training seam types. Ideally provided by the Renault engineering team or sourced from an extended dataset.</li>
+<li><strong>Volume</strong>: a few hundred images per unseen seam type</li>
+<li><strong>Augmentation</strong>: none — evaluation on real unseen data.</li>
+<li><strong>Usage</strong>: generalization evaluation — F1-score on unseen seams, ΔF1 seen vs unseen, confusion matrix on unseen seams, Unknown rate on unseen seams. Tests whether the component can handle similar but unknown weld types without retraining.</li>
+</ul>
+<h3 id="34-data-drift-dataset">3.4 Data Drift Dataset</h3>
+<ul>
+<li><strong>Method</strong>: generated from ~500 good-quality source images by applying progressive degradations simulating hardware aging. Multiple intensity levels from mild to severe.</li>
+<li><strong>Degradation types</strong>:</li>
+<li>Gaussian noise at increasing intensity</li>
+<li>Simulated dead pixels (random pixel dropout at increasing rates)</li>
+<li>Progressive image quality degradation (combined blur + noise + contrast loss)</li>
+<li><strong>Volume</strong>: ~500 source images × 4-5 degradation levels = a few thousand degraded images</li>
+<li><strong>Usage</strong>: data drift evaluation — F1-score per degradation level (at which point does the model break down?), OOD trigger point (at which degradation level does OOD detection activate?), AUROC OOD under severe drift, false negative rate under drift. Tests dual behavior: robustness under mild drift + OOD detection under severe drift.</li>
+</ul>
+<h2 id="4-dataset-metadata">4. Dataset Metadata</h2>
+<p>Each sample across all datasets is associated with the following metadata:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>weld_id</code></td>
+<td>Unique identifier for the weld</td>
+</tr>
+<tr>
+<td><code>seam_type</code></td>
+<td>Weld seam type (C20 / C33 / C102, or C19 / C34 / C101 for generalization)</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td>Ground truth class (OK / KO)</td>
+</tr>
+<tr>
+<td><code>annotation_source</code></td>
+<td>Origin of the label (operator / quality controller / both)</td>
+</tr>
+<tr>
+<td><code>is_augmented</code></td>
+<td>Boolean — original image or synthetically generated</td>
+</tr>
+<tr>
+<td><code>augmentation_type</code></td>
+<td>Type of augmentation applied (if augmented): blur, brightness, rotation, translation, noise, coloration, dead_pixels</td>
+</tr>
+<tr>
+<td><code>augmentation_intensity</code></td>
+<td>Intensity level of the augmentation (if augmented)</td>
+</tr>
+<tr>
+<td><code>original_weld_id</code></td>
+<td>Reference to source image (if augmented)</td>
+</tr>
+<tr>
+<td><code>blur_level</code></td>
+<td>Measured blur level of the image</td>
+</tr>
+<tr>
+<td><code>flash_intensity</code></td>
+<td>Flash intensity at capture time</td>
+</tr>
+<tr>
+<td><code>criticality</code></td>
+<td>Criticality level of the weld position</td>
+</tr>
+<tr>
+<td><code>dataset_subset</code></td>
+<td>Which subset this sample belongs to (training / validation / calibration / evaluation / robustness / ood / generalization / drift)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-dataset-constitution-methods">5. Dataset Constitution Methods</h2>
+<p>Summary of techniques used across datasets:</p>
+<table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>Description</th>
+<th>Used in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stratified split</td>
+<td>Preserves class and seam type distribution in each subset</td>
+<td>Training, Validation, Calibration, Evaluation</td>
+</tr>
+<tr>
+<td>Data augmentation (on-the-fly)</td>
+<td>Random transformations during training for robustness</td>
+<td>Training</td>
+</tr>
+<tr>
+<td>KO oversampling</td>
+<td>Duplicate + augment KO images to rebalance classes</td>
+<td>Training</td>
+</tr>
+<tr>
+<td>Controlled perturbation</td>
+<td>Apply perturbations at known intensity levels for evaluation</td>
+<td>Robustness, Data Drift</td>
+</tr>
+<tr>
+<td>Strong perturbation (beyond ODD)</td>
+<td>Generate synthetic OOD images with extreme alterations</td>
+<td>OOD</td>
+</tr>
+<tr>
+<td>Discovery protocol</td>
+<td>Manual or semi-automatic search for real anomalous images</td>
+<td>OOD</td>
+</tr>
+<tr>
+<td>Proximity-based selection</td>
+<td>Select unseen seam types similar to training data</td>
+<td>Generalization</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-dataset-mapping-to-lifecycle-phases">6. Dataset Mapping to Lifecycle Phases</h2>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th style="text-align: center;">Construction</th>
+<th style="text-align: center;">Training</th>
+<th style="text-align: center;">Evaluation</th>
+<th style="text-align: center;">Operation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Calibration</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Standard Evaluation</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Robustness</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>OOD</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Generalization</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Data Drift</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
 
 
 
