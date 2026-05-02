@@ -1,0 +1,21 @@
+name: Deploy docs
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+      - run: uv sync --group docs
+        working-directory: tp-composant-ia
+      - run: uv run mkdocs gh-deploy --force
+        working-directory: tp-composant-ia
