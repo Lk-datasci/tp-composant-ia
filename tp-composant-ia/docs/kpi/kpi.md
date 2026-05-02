@@ -1,6 +1,6 @@
 # Key Performance Indicators (KPIs)
 
-This document defines the KPIs used to measure the performance and trustworthiness of the AI component for the Welding Quality Detection Challenge. KPIs are organized around the 6 trust attributes defined in the Confiance.ai evaluation framework.
+This document defines the KPIs used to measure the performance and trustworthiness of the AI component for the Welding Quality Detection Challenge. KPIs are organized around the 6 trust attributes defined in the Confiance.ai evaluation framework, plus component-specific KPIs tied to the specialized architecture (routing, per-CNN performance, preprocessing correction, sampling rules).
 
 ## 1. Data Quality KPI
 
@@ -87,6 +87,53 @@ This document defines the KPIs used to measure the performance and trustworthine
 - **Objective**: Stable performance under mild drift, reliable OOD detection under severe drift.
 - **Phase**: Evaluation, Operation.
 
+## 9. Routing Accuracy KPI
+
+- **Description**: Evaluate whether the clusterizer correctly routes images to the appropriate specialized CNN. A misrouted image (e.g. C20 image sent to CNN C33) will produce unreliable predictions.
+- **Metrics**:
+  - **Routing accuracy**: percentage of images correctly assigned to their corresponding CNN.
+  - **Routing confusion matrix**: cross-tabulation of true seam types vs assigned CNN, to identify systematic misrouting patterns.
+- **Objective**: Routing accuracy > threshold (TBD), no systematic misrouting between seam types.
+- **Phase**: Evaluation.
+
+## 10. Blur Detection Quality KPI
+
+- **Description**: Evaluate the reliability of the blur analysis module (blur level → blur class). Incorrect blur classification can trigger unnecessary unblurring (degrading image quality) or miss blur that should have been corrected, and can also corrupt the blur-related OOD signal.
+- **Metrics**:
+  - **Blur classification accuracy**: agreement between predicted blur class and ground truth blur level.
+  - **Impact on downstream performance**: ΔF1-score with correct vs incorrect blur classification.
+- **Objective**: Blur classification accuracy > threshold (TBD), minimal impact on downstream prediction quality.
+- **Phase**: Evaluation.
+
+## 11. Per-CNN Performance KPI
+
+- **Description**: Evaluate the performance of each specialized CNN independently. Since each CNN is trained on its own seam type, individual degradation could go unnoticed if only global performance is tracked.
+- **Metrics**:
+  - **F1-score per CNN**: F1 on OK/NOK classification for CNN C20, CNN C33, CNN C102 independently.
+  - **Recall NOK per CNN**: false negative rate per specialized CNN.
+  - **Cross-CNN performance gap**: max performance difference between the best and worst performing CNN. A large gap indicates imbalanced training quality.
+- **Objective**: All CNNs above minimum F1 threshold, cross-CNN gap < acceptable limit.
+- **Phase**: Evaluation, Operation.
+
+## 12. Preprocessing Correction Quality KPI
+
+- **Description**: Evaluate whether the unblur and un-rotate modules (trained with augmented data) actually improve image quality and downstream prediction performance, rather than introducing artifacts.
+- **Metrics**:
+  - **ΔF1 with/without correction**: performance difference when preprocessing corrections are applied vs bypassed.
+  - **Image quality score before/after**: objective image quality metric (e.g. sharpness, SSIM) before and after correction.
+- **Objective**: Corrections should improve or maintain downstream F1-score. If corrections degrade performance, they should be bypassed.
+- **Phase**: Evaluation.
+
+## 13. Sampling Rules Efficiency KPI
+
+- **Description**: Evaluate whether the sampling rules that select which predictions are shown to the operator are effective — catching the right cases for human review without overwhelming the operator.
+- **Metrics**:
+  - **Operator correction rate on sampled images**: how often does the operator override the system's prediction on sampled images?
+  - **Missed defect rate on non-sampled images**: estimated rate of undetected defects among images not shown to the operator (measurable via batch control).
+  - **Operator workload**: number of images requiring manual review per shift.
+- **Objective**: High correction capture rate, low missed defect rate, manageable operator workload.
+- **Phase**: Operation.
+
 ## KPI Mapping to Lifecycle Phases
 
 | KPI | Construction | Training | Evaluation | Operation |
@@ -99,11 +146,16 @@ This document defines the KPIs used to measure the performance and trustworthine
 | OOD Monitoring | | | X | X |
 | Generalization | | | X | |
 | Data Drift | | | X | X |
+| Routing Accuracy | | | X | |
+| Blur Detection Quality | | | X | |
+| Per-CNN Performance | | | X | X |
+| Preprocessing Correction Quality | | | X | |
+| Sampling Rules Efficiency | | | | X |
 
 ## Aggregation Method
 
 KPIs are aggregated using a two-level approach:
 1. **Pass/fail gate**: each KPI must meet its minimum threshold — any failure blocks deployment
-2. **Weighted score**: KPIs are normalized (0-1) and combined with criticality-based weights (e.g. Performance weight 3, OOD weight 2, Robustness weight 2, Uncertainty weight 1, Generalization weight 1, Drift weight 1) for cross-version comparison and progress tracking
+2. **Weighted score**: KPIs are normalized (0-1) and combined with criticality-based weights (e.g. Performance ×3, OOD ×2, Robustness ×2, Uncertainty ×1, Generalization ×1, Drift ×1) for cross-version comparison and progress tracking
 
 Visual synthesis: radar chart of the 6 trust attributes for immediate overview.
