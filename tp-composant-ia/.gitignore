@@ -7,7 +7,6 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 site/
-docs/index.md
 uv.lock
 **/.DS_Store
 *.svg
