@@ -1,0 +1,18 @@
+name: Deploy docs
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install mkdocs-material mkdocs-jupyter mkdocstrings mkdocstrings-python pymdown-extensions mkdocs-simple-hooks mkdocs-htmlproofer-plugin mkdocs-api-autonav mkdocs-autorefs jupytext
+      - run: mkdocs gh-deploy --force
+        working-directory: tp-composant-ia
