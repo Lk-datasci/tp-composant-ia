@@ -12,6 +12,8 @@ The component features a specialized architecture with one CNN per weld seam typ
 
 The operation phase describes how the component behaves when deployed in production, in real time on the production line.
 
+![Operation Architecture](operation_architecture.png)
+
 ### 1.1 Inputs
 
 Three data sources feed the component at inference time:
@@ -95,202 +97,13 @@ The metrics assembly module combines all signals to produce the final decision:
 
 **Batch Control**: analyzes stored data in batches to detect systemic issues (e.g. abnormally high Unknown rate on a specific seam type, drift in confidence distributions).
 
-### 1.7 Operation Architecture Diagram
-
-```mermaid
-%% Schéma Architecture - Operations (Production / Inférence)
-%% Converti depuis 1a_-_Architecture_-_Schéma_Operations_v4.excalidraw
-flowchart LR
-
-    %% ============================================================
-    %% INPUTS
-    %% ============================================================
-    subgraph INPUT["**Input**"]
-        direction TB
-        subgraph META["ERP Metadata"]
-            TS["Timestamp"]
-            WID["Weld ID"]
-        end
-        subgraph SENSOR["Sensor data (1 per weld)"]
-            IMG["Image RGB"]
-            FLASH["Flash intensity"]
-            FB["Welder feedback"]
-            SYNC["Sync offsets between sensors"]
-        end
-        subgraph ERPP["ERP process data"]
-            MAT["Welding Material"]
-            CRIT["Criticality level by welding type"]
-        end
-    end
-
-    %% ============================================================
-    %% PRE-PROCESSING
-    %% ============================================================
-    subgraph PRE["**Pre-process**"]
-        direction TB
-        subgraph BLUR["Blur analysis"]
-            BL["Blur Level"]
-            BC["Blur Class"]
-        end
-        subgraph IMGT["Image transformation"]
-            HSL["Convert to HSL"]
-            UNBLUR["Unblur if needed"]
-            UNROT["Un-Rotate"]
-            RESIZE["Resize, Normalize"]
-            FLIP["Flip (mirror effect)<br/>to 3 welding types"]
-        end
-        subgraph DESC["Image descriptive attributes"]
-            SYNCAL["Sync alignement"]
-        end
-    end
-
-    %% ============================================================
-    %% BACKBONE
-    %% ============================================================
-    subgraph BB["**Backbone**"]
-        direction TB
-        BL2["Blur Level"]
-        CLUST["Clusterize<br/>to 6 welding types"]
-        DEC{{"Routing"}}
-        subgraph CNNS["CNNs (1 per welding type)"]
-            CNN20["CNN for C20"]
-            CNN33["CNN for C33"]
-            CNN102["CNN for C102"]
-        end
-        LAT(("Latent<br/>Space"))
-        THR["Calculation of acceptation thresholds<br/>for all 6 welding types"]
-    end
-
-    %% ============================================================
-    %% ML COMPONENT - Latent Space Use
-    %% ============================================================
-    subgraph ML["**ML Component** — Latent Space Use"]
-        direction TB
-        PRED["Predictor<br/>(MLP regressor)"]
-        UQ["Uncertainty Quantifier<br/>(entropy, PUNCC, ...)"]
-        ODD["ODD detector<br/>(MLP regressor)"]
-        PROB(("Probabilities<br/>(ok, nok, unk)"))
-        UQK(("UQ KPIs"))
-        ANOM(("Anomaly scores:<br/>data drift,<br/>signal artefact"))
-        OODB(("Blur-related<br/>OODD signal"))
-        WTYPE(("Welding Type"))
-        STH(("Short-term<br/>history"))
-        MON["Online monitoring<br/>(multi-timescale)"]
-    end
-
-    %% ============================================================
-    %% METRICS ASSEMBLY
-    %% ============================================================
-    subgraph MA["**Metrics Assembly**"]
-        FINAL["Final Class<br/>(ok, nok, unk)"]
-        AGG["Aggregation of<br/>trust information"]
-    end
-
-    %% ============================================================
-    %% OPERATOR INTERACTIONS - HMI
-    %% ============================================================
-    subgraph HMI["**Operator interactions** — Human Machine Interface"]
-        direction TB
-        ROUTE{{"Sampling rules"}}
-        OP120["OP120 Display"]
-        QC["QC operator<br/>decision"]
-        FDEC(("Final<br/>decision"))
-        CONV["Conveyor routing"]
-        STORE["Storage"]
-        BATCH["Batch Control"]
-    end
-
-    %% ============================================================
-    %% FLOWS — INPUT to PRE-PROCESS
-    %% ============================================================
-    IMG --> HSL
-    IMG --> BL
-    BL --> BC
-    HSL --> UNBLUR
-    UNBLUR --> UNROT
-    UNROT --> RESIZE
-    RESIZE --> FLIP
-    BC --> UNBLUR
-    FLASH --> SYNCAL
-    FB --> SYNCAL
-    SYNC --> SYNCAL
-
-    %% PRE-PROCESS to BACKBONE
-    RESIZE --> CLUST
-    RESIZE --> BL2
-    CLUST --> FLIP
-    BL2 --> DEC
-    FLIP --> DEC
-    THR --> DEC
-    MAT --> THR
-    CRIT --> THR
-
-    DEC --> CNN20
-    DEC --> CNN33
-    DEC --> CNN102
-    CNN20 --> LAT
-    CNN33 --> LAT
-    CNN102 --> LAT
-
-    %% BACKBONE to ML
-    LAT --> PRED
-    LAT --> UQ
-    LAT --> ODD
-    PRED --> PROB
-    UQ --> UQK
-    ODD --> ANOM
-    DEC --> OODB
-    DEC --> WTYPE
-    OODB --> ODD
-    LAT --> STH
-    UQK --> STH
-    ANOM --> STH
-    STH --> MON
-
-    %% ML to METRICS ASSEMBLY
-    PROB --> FINAL
-    UQK --> FINAL
-    ANOM --> FINAL
-    WTYPE --> FINAL
-    THR --> FINAL
-    MON --> FINAL
-    MON --> AGG
-    STH --> AGG
-
-    %% METRICS ASSEMBLY to HMI
-    FINAL --> ROUTE
-    AGG --> ROUTE
-    ROUTE --> OP120
-    ROUTE --> FDEC
-    OP120 --> QC
-    QC --> FDEC
-    AGG --> STORE
-    FDEC --> CONV
-    FDEC --> STORE
-    STORE --> BATCH
-
-    %% ============================================================
-    %% STYLES
-    %% ============================================================
-    classDef input fill:#a5d8ff,stroke:#1971c2,color:#000
-    classDef preproc fill:#e9ecef,stroke:#495057,color:#000
-    classDef ml fill:#ffd8a8,stroke:#e8590c,color:#000
-    classDef cluster fill:#ffec99,stroke:#e67700,color:#000
-    classDef anomaly fill:#d0bfff,stroke:#6741d5,color:#000
-    classDef hmi fill:#b2f2bb,stroke:#2f9e44,color:#000
-
-    class IMG,FLASH,FB,SYNC,MAT,CRIT,WID,TS input
-    class HSL,UNBLUR,UNROT,RESIZE,FLIP,SYNCAL,BL,BC,BL2,SYNCAL preproc
-    class PRED,ODD,CNN20,CNN33,CNN102 ml
-    class CLUST cluster
-    class ANOM,OODB anomaly
-```
-
 ---
 
 ## 2. Training Architecture
 
 The training architecture describes how each component of the operation pipeline is built. It uses the same structure as the operation architecture, with a color-coding system indicating how each block is trained or constructed.
+
+![Training Architecture](trainig_architecture.png)
 
 ### 2.1 Component Training Strategy
 
@@ -349,10 +162,6 @@ Each block in the operation architecture falls into one of the following categor
 - **Secondary metrics**: overall accuracy, recall NOK, ECE (calibration error)
 - **Early stopping**: triggered when validation F1-score on KO class plateaus for N consecutive epochs
 - **Inference time check**: each CNN must meet < 1/12s per image on target hardware
-
-### 2.5 Training Architecture Diagram
-
-See `1b_-_Architecture_-_Schéma_Entrainement_v1.excalidraw` or the corresponding mermaid file for the full visual diagram with color coding.
 
 ---
 
